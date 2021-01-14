@@ -1,32 +1,23 @@
 const request = require('request');
-const fs = require('fs');
-
-const command = process.argv.slice(2);
-const path = command[0];
 
 
+const fetchBreedDescription = function(breedName, callback) {
 
-
-request(`https://api.thecatapi.com/v1/breeds/search?q=${path}`, (error, response, body) => {
-  if (error || response.statusCode !== 200) {
-    console.log('error:', error);
-    console.log("this is the statusCode ",response.statusCode);
-    return;
-  }
+  request(`https://api.thecatapi.com/v1/breeds/search?q=${breedName}`, (error, response, body) => {
+        
+    if (error || response.statusCode !== 200) {
+     callback(`Connection failed, error :${error}`);
+     return;
+    }
   
-  const data = JSON.parse(body);
- 
+    const data = JSON.parse(body);
 
-  if (data.length === 0) {
-    console.log("Cat breed not found");
-    return;
-  }
-
-  fs.writeFile(`catBreeds.txt`, body, (err) => { // copies the path file onto our computer
-    if (err) throw err;
-    console.log(data[0].description);
-    
-
+    if (data.length === 0) {
+      callback("Cat breed not found",null);
+    } else {
+     callback(error, data[0].description);
+    }
   });
-});
+};
 
+module.exports = { fetchBreedDescription };
